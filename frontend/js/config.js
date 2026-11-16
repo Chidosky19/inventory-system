@@ -11,15 +11,17 @@ const usingSeparateDevServer =
 
 const CONFIG = Object.freeze({
     API_URL: usingSeparateDevServer ? "http://localhost:3000" : window.location.origin,
+    SUPABASE_URL: "https://oqkopxleknoqmlfchjxt.supabase.co",
+    SUPABASE_KEY: "sb_publishable_gWwh3zPPncyDM0y45aWiYA_41ih3qH6",
     LOCALE: "en-NG",
     CURRENCY: "₦",
 
     // Shown on the About, Contact and Support pages. Replace with your real details.
     SITE: {
         name: "Chidosky Electronics",
-        email: "emmanuelokechukwu.c.2005@gmail.com",
-        phone: "+234 702 543 4357",
-        address: "University of Nigeria, Nsukka, Enugu State, Nigeria",
-        hours: "Mon - fri, 8:00am - 3:00pm"
+        email: "support@example.com",
+        phone: "+234 800 000 0000",
+        address: "Your shop address, City, Nigeria",
+        hours: "Mon - Sat, 8:00am - 6:00pm"
     }
 });

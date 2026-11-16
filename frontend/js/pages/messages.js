@@ -103,7 +103,12 @@
     }
 
     async function remove(id) {
-        if (!confirm("Delete this message? This cannot be undone.")) return;
+        if (!(await Utils.confirm({
+            title: "Delete this message?",
+            message: "This cannot be undone.",
+            confirmText: "Delete",
+            danger: true
+        }))) return;
 
         try {
             await Api.deleteMessage(id);

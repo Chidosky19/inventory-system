@@ -79,21 +79,180 @@ const Utils = {
     },
 
     /** Show a short status message. type: "success" | "danger" | "muted" */
+    /**
+     * Show a message next to a form or table. Success messages pop up in the corner and fade away
+     * on their own; errors and hints stay in place, next to what needs fixing.
+     */
     setMessage(element, text = "", type = "danger") {
         if (!element) return;
+
+        if (text && type === "success") {
+            Utils.toast(text, "success");
+            element.textContent = "";
+            element.className = "";
+            return;
+        }
+
         element.textContent = text;
         element.className = text ? `text-${type}` : "";
     },
 
+    /** A small pop-up notice in the corner of the screen. type: "success", "danger" or "info". */
+    toast(text, type = "info") {
+        let stack = document.querySelector(".toast-stack");
+
+        if (!stack) {
+            stack = document.createElement("div");
+            stack.className = "toast-stack";
+            stack.setAttribute("role", "region");
+            stack.setAttribute("aria-live", "polite");
+            document.body.appendChild(stack);
+        }
+
+        const icons = { success: "bi-check-circle-fill", danger: "bi-exclamation-triangle-fill", info: "bi-info-circle-fill" };
+
+        const toast = document.createElement("div");
+        toast.className = `ui-toast is-${type}`;
+
+        const icon = document.createElement("i");
+        icon.className = `bi ${icons[type] || icons.info}`;
+
+        const message = document.createElement("span");
+        message.textContent = text;
+
+        const close = document.createElement("button");
+        close.type = "button";
+        close.setAttribute("aria-label", "Dismiss");
+        close.textContent = "×";
+
+        toast.append(icon, message, close);
+        stack.appendChild(toast);
+
+        let timer;
+
+        const dismiss = () => {
+            clearTimeout(timer);
+            toast.classList.add("is-leaving");
+            setTimeout(() => toast.remove(), 200);
+        };
+
+        close.addEventListener("click", dismiss);
+        timer = setTimeout(dismiss, type === "danger" ? 7000 : 4500);
+    },
+
+    /**
+     * A proper confirmation box instead of the plain browser one.
+     * Usage:  if (!(await Utils.confirm({ title: "Delete this?", message: "...", danger: true }))) return;
+     */
+    confirm({ title = "Are you sure?", message = "", confirmText = "Confirm", cancelText = "Cancel", danger = false } = {}) {
+        if (typeof HTMLDialogElement === "undefined") {
+            return Promise.resolve(window.confirm(message ? `${title}\n${message}` : title));
+        }
+
+        return new Promise(resolve => {
+            const dialog = document.createElement("dialog");
+            dialog.className = `ui-confirm${danger ? " is-danger" : ""}`;
+
+            const body = document.createElement("div");
+            body.className = "ui-confirm-body";
+
+            const icon = document.createElement("div");
+            icon.className = "ui-confirm-icon";
+            icon.innerHTML = `<i class="bi ${danger ? "bi-trash3" : "bi-question-circle"}"></i>`;
+
+            const text = document.createElement("div");
+            const heading = document.createElement("h3");
+            heading.textContent = title;
+            text.appendChild(heading);
+
+            if (message) {
+                const paragraph = document.createElement("p");
+                paragraph.textContent = message;
+                text.appendChild(paragraph);
+            }
+
+            body.append(icon, text);
+
+            const actions = document.createElement("div");
+            actions.className = "ui-confirm-actions";
+
+            const cancel = document.createElement("button");
+            cancel.type = "button";
+            cancel.className = "ui-btn ui-btn-ghost";
+            cancel.textContent = cancelText;
+
+            const confirmButton = document.createElement("button");
+            confirmButton.type = "button";
+            confirmButton.className = `ui-btn ${danger ? "ui-btn-danger" : "ui-btn-primary"}`;
+            confirmButton.textContent = confirmText;
+
+            actions.append(cancel, confirmButton);
+            dialog.append(body, actions);
+
+            let result = false;
+
+            cancel.addEventListener("click", () => dialog.close());
+            confirmButton.addEventListener("click", () => { result = true; dialog.close(); });
+            dialog.addEventListener("click", event => { if (event.target === dialog) dialog.close(); });
+            dialog.addEventListener("close", () => { dialog.remove(); resolve(result); });
+
+            document.body.appendChild(dialog);
+            dialog.showModal();
+
+            // For a delete, the safe button (Cancel) has the focus so Enter can't delete by accident
+            (danger ? cancel : confirmButton).focus();
+        });
+    },
+
     /** Replace the contents of a table body with a single full-width message row. */
+    /** Grey placeholder rows that shimmer while a table loads. */
+    showTableSkeleton(tbody, colspan, rows = 5) {
+        const widths = [62, 84, 46, 72, 56, 90, 50, 76];
+
+        const items = Array.from({ length: rows }, (_, rowIndex) => {
+            const row = document.createElement("tr");
+
+            for (let column = 0; column < colspan; column += 1) {
+                const cell = document.createElement("td");
+                const bar = document.createElement("span");
+
+                bar.className = "skeleton";
+                bar.style.width = `${widths[(rowIndex + column) % widths.length]}%`;
+                cell.appendChild(bar);
+                row.appendChild(cell);
+            }
+
+            return row;
+        });
+
+        tbody.replaceChildren(...items);
+    },
+
+    /** Replace a table's rows with one message. "Loading..." becomes placeholders; empty and error messages get an icon. */
     setTableMessage(tbody, colspan, text) {
+        const message = String(text);
+
+        if (/^loading\b/i.test(message)) {
+            Utils.showTableSkeleton(tbody, colspan);
+            return;
+        }
+
+        const isError = /^(unable|failed|could not|couldn't)/i.test(message);
+
         const row = document.createElement("tr");
         const cell = document.createElement("td");
+        const box = document.createElement("div");
+        const icon = document.createElement("i");
+        const paragraph = document.createElement("p");
 
         cell.colSpan = colspan;
-        cell.className = "text-center py-4";
-        cell.textContent = text;
+        cell.className = "empty-cell";
+        box.className = `empty-state${isError ? " is-error" : ""}`;
+        icon.className = `bi ${isError ? "bi-exclamation-triangle" : "bi-inbox"}`;
+        paragraph.textContent = message;
 
+        box.append(icon, paragraph);
+        cell.appendChild(box);
         row.appendChild(cell);
         tbody.replaceChildren(row);
     },

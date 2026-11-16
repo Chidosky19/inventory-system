@@ -474,7 +474,12 @@
         const product = allProducts.find(item => String(item.id) === String(id));
         const name = product ? `"${product.product_name}"` : "this product";
 
-        if (!confirm(`Delete ${name}? This cannot be undone.`)) return;
+        if (!(await Utils.confirm({
+            title: `Delete ${name}?`,
+            message: "This cannot be undone.",
+            confirmText: "Delete",
+            danger: true
+        }))) return;
 
         try {
             await Api.deleteProduct(id);

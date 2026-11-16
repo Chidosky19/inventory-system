@@ -197,7 +197,12 @@
         const employee = employees.find(item => item.id === id);
         const name = employee ? employee.name || employee.email : "this employee";
 
-        if (disabled && !confirm(`Disable ${name}? They will be signed out and unable to log in until you enable them again.`)) {
+        if (disabled && !(await Utils.confirm({
+            title: `Disable ${name}?`,
+            message: "They will be signed out and unable to log in until you enable them again.",
+            confirmText: "Disable",
+            danger: true
+        }))) {
             return;
         }
 
@@ -307,7 +312,12 @@
         const employee = employees.find(item => item.id === id);
         const name = employee ? employee.name || employee.email : "this employee";
 
-        if (!confirm(`Delete ${name}? This cannot be undone. Their past sales will be kept.`)) return;
+        if (!(await Utils.confirm({
+            title: `Delete ${name}?`,
+            message: "This cannot be undone. Their past sales will be kept.",
+            confirmText: "Delete",
+            danger: true
+        }))) return;
 
         try {
             await Api.deleteEmployee(id);

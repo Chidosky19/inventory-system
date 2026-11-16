@@ -31,6 +31,17 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    /* ---- Tables that start with a "Loading..." line show shimmering placeholders instead ---- */
+    if (typeof Utils !== "undefined") {
+        document.querySelectorAll("tbody").forEach(tbody => {
+            const cell = tbody.querySelector("tr > td[colspan]");
+
+            if (tbody.children.length === 1 && cell && /^\s*loading\b/i.test(cell.textContent)) {
+                Utils.showTableSkeleton(tbody, Number(cell.getAttribute("colspan")));
+            }
+        });
+    }
+
     /* ---- Phone tables: label every cell with its column heading (used by the stacked-card layout) ---- */
     document.querySelectorAll("table.stack-table").forEach(table => {
         const body = table.querySelector("tbody");
