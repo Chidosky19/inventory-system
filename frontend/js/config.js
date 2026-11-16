@@ -11,8 +11,6 @@ const usingSeparateDevServer =
 
 const CONFIG = Object.freeze({
     API_URL: usingSeparateDevServer ? "http://localhost:3000" : window.location.origin,
-    SUPABASE_URL: "https://oqkopxleknoqmlfchjxt.supabase.co",
-    SUPABASE_KEY: "sb_publishable_gWwh3zPPncyDM0y45aWiYA_41ih3qH6",
     LOCALE: "en-NG",
     CURRENCY: "₦",
 
