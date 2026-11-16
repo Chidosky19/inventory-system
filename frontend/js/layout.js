@@ -30,4 +30,25 @@ document.addEventListener("DOMContentLoaded", function () {
             day: "numeric"
         });
     }
+
+    /* ---- Phone tables: label every cell with its column heading (used by the stacked-card layout) ---- */
+    document.querySelectorAll("table.stack-table").forEach(table => {
+        const body = table.querySelector("tbody");
+        const labels = [...table.querySelectorAll("thead th")].map(th => th.textContent.trim());
+
+        if (!body) return;
+
+        function addLabels() {
+            body.querySelectorAll("tr").forEach(row => {
+                [...row.children].forEach((cell, index) => {
+                    if (!cell.hasAttribute("colspan") && labels[index] && !cell.dataset.label) {
+                        cell.dataset.label = labels[index];
+                    }
+                });
+            });
+        }
+
+        addLabels();
+        new MutationObserver(addLabels).observe(body, { childList: true });
+    });
 });

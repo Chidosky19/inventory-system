@@ -820,3 +820,93 @@ img, canvas, svg {
     .income-tile { padding: 14px; }
     .income-tile strong { font-size: 20px; }
 }
+
+
+/* ===== Phone polish (screens up to 700px wide) ===== */
+
+@media (max-width: 700px) {
+
+    /* Page title gets the room: drop the small subtitle in the top bar */
+    .topbar small { display: none; }
+    .topbar h5 { font-size: 17px; }
+
+    /* Summary cards: two per row and shorter, so the real content starts higher up the screen */
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .row:has(> [class*="col"] > .stat-card) { --bs-gutter-x: 0.75rem; --bs-gutter-y: 0.75rem; }
+
+    .row:has(> [class*="col"] > .stat-card) > [class*="col"] { width: 50%; }
+
+    .row:has(> [class*="col"] > .stat-card) > [class*="col"]:last-child:nth-child(odd) { width: 100%; }
+
+    .stat-card,
+    .card.stat-card { padding: 14px !important; border-radius: 14px; }
+
+    .stat-card p { margin-bottom: 4px; font-size: 11px; letter-spacing: 0.2px; }
+    .stat-card h3 { font-size: 20px; }
+    .stat-card small { font-size: 11px; }
+    .stat-card .stat-icon { width: 32px; height: 32px; margin-bottom: 8px; font-size: 15px; }
+
+    /* Income tiles: smaller figures so amounts are never split across two lines */
+    .income-tile strong { font-size: 17px; overflow-wrap: normal; }
+
+    /* Tables that stack into cards: one card per row, each value labelled with its column name */
+    .stack-table thead { display: none; }
+    .stack-table,
+    .stack-table tbody { display: block; width: 100%; }
+
+    .stack-table tr {
+        display: block;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .stack-table tr:last-child { border-bottom: 0; }
+
+    .stack-table td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 4px 0 !important;
+        border: 0 !important;
+        text-align: right;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .stack-table td::before {
+        content: attr(data-label);
+        flex: none;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+        text-align: left;
+    }
+
+    .stack-table td:first-child { font-weight: 700; }
+
+    .stack-table td[colspan] { display: block; text-align: center; }
+    .stack-table td[colspan]::before { content: none; }
+
+    /* Short report tables: keep as tables, just tighter so they fit */
+    .compact-table th,
+    .compact-table td { padding: 8px 6px !important; font-size: 12px; }
+
+    /* Titles in the top bar: slightly smaller and tighter so "Stock Management" is not cut off */
+    .topbar { gap: 8px; padding: 12px 12px; }
+    .topbar h5 { font-size: 16px; }
+    .icon-button,
+    .menu-toggle { padding: 8px 10px; }
+
+    /* Cards on pages with Bootstrap rows (Stock, Sales, Reports): the icon goes, so amounts fit on one line */
+    .row .stat-card .stat-icon { display: none; }
+    .row .stat-card h3 { font-size: 17px; overflow-wrap: normal; }
+
+    /* Employees: show the team list first, the "Add employee" form after it */
+    .row:has(#employeeForm) > [class*="col-lg-4"] { order: 2; }
+}

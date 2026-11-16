@@ -313,6 +313,8 @@ body.site {
 
 :root[data-theme="dark"] .btn-main { color: #0c1122; }
 .btn-main:hover { background: var(--s-primary-dark); }
+.site .btn-main { color: #fff; }
+:root[data-theme="dark"] .site .btn-main { color: #0c1122; }
 
 .form-note { margin-top: 12px; font-size: 13px; color: var(--s-muted); }
 

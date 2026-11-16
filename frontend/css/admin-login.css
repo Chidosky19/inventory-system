@@ -213,6 +213,8 @@
 
 .al-submit:hover:not(:disabled) { background: var(--a-primary-dark); transform: translateY(-1px); }
 .al-submit:disabled { opacity: 0.75; cursor: wait; }
+.al-body .al-submit { color: #fff; }
+:root[data-theme="dark"] .al-body .al-submit { color: #0c1122; }
 
 .al-spinner {
     width: 17px;

@@ -22,7 +22,6 @@ const LOCAL_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
  */
 function createApp({ supabase, publicSupabase = null, config }) {
     const app = express();
-    app.set("trust proxy", 1);
 
     app.disable("x-powered-by");
 

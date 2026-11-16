@@ -989,3 +989,11 @@ a.emp-icon-btn { text-decoration: none; }
     .emp-receipt .line { display: flex; justify-content: space-between; gap: 12px; }
     .emp-receipt .total { font-size: 15px; font-weight: bold; }
 }
+
+
+/* Phones: make room for the shop name in the header */
+@media (max-width: 480px) {
+    .emp-top-actions a[href="support.html"] { display: none; }
+    .emp-brand { font-size: 14px; }
+    .emp-top-actions { gap: 6px; }
+}
