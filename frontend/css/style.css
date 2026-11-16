@@ -116,7 +116,7 @@
 }
 
 body {
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: "Roboto Mono", monospace;
     font-size: 14px;
     line-height: 1.6;
     background: var(--background);
@@ -160,8 +160,9 @@ h1, h2, h3, h4, h5, h6 {
 
 .brand {
     margin-bottom: 48px;
-    font-size: 21px;
+    font-size: 17px;   /* smaller so the shop name fits the sidebar in the wider font */
     font-weight: 800;
+    overflow-wrap: anywhere;
 }
 
 .brand i {
@@ -910,3 +911,7 @@ img, canvas, svg {
     /* Employees: show the team list first, the "Add employee" form after it */
     .row:has(#employeeForm) > [class*="col-lg-4"] { order: 2; }
 }
+
+
+/* Bootstrap components use the same font */
+:root { --bs-body-font-family: "Roboto Mono", monospace; }

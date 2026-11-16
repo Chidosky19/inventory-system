@@ -51,7 +51,7 @@ html.auth-pending body { visibility: hidden; }
 body.auth-body,
 body.emp-body {
     margin: 0;
-    font-family: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    font-family: "Roboto Mono", monospace;
     font-size: 15px;
     line-height: 1.55;
     color: var(--e-text);

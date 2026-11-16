@@ -67,6 +67,9 @@
 
     /* ---------- Charts ---------- */
 
+    // Chart labels use the same font as the rest of the site
+    if (typeof Chart !== "undefined") Chart.defaults.font.family = '"Roboto Mono", monospace';
+
     /** Revenue per day, oldest first. */
     function groupRevenueByDay(sales) {
         const days = new Map();

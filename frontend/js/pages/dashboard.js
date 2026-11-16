@@ -110,6 +110,8 @@
 
         if (trendChart) trendChart.destroy();
 
+        Chart.defaults.font.family = '"Roboto Mono", monospace';
+
         trendChart = new Chart($("trendChart"), {
             type: "line",
             data: {
