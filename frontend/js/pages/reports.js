@@ -67,8 +67,8 @@
 
     /* ---------- Charts ---------- */
 
-    // Chart labels use the same font as the rest of the site
-    if (typeof Chart !== "undefined") Chart.defaults.font.family = '"Roboto Mono", monospace';
+    // Chart labels are mostly amounts, so they keep the original font
+    if (typeof Chart !== "undefined") Chart.defaults.font.family = '"Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif';
 
     /** Revenue per day, oldest first. */
     function groupRevenueByDay(sales) {

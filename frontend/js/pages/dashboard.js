@@ -110,7 +110,7 @@
 
         if (trendChart) trendChart.destroy();
 
-        Chart.defaults.font.family = '"Roboto Mono", monospace';
+        Chart.defaults.font.family = '"Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif';
 
         trendChart = new Chart($("trendChart"), {
             type: "line",
