@@ -50,6 +50,7 @@ const Api = (() => {
 
         // Dashboard
         getDashboard: () => request("/dashboard", { fallback: "Unable to load dashboard" }),
+        getAlerts: () => request("/dashboard/alerts", { fallback: "Unable to check for new activity" }),
 
         // Products
         getProducts: () => request("/products", { fallback: "Unable to load products" }),
@@ -60,6 +61,7 @@ const Api = (() => {
 
         // Sales
         getSales: () => request("/sales", { fallback: "Unable to load sales" }),
+        getLatestSale: () => request("/sales/latest", { fallback: "Unable to check for new sales" }),
         createSale: sale => request("/sales", { method: "POST", body: sale, fallback: "Unable to record sale" }),
 
         // Stock

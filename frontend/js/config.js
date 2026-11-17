@@ -21,7 +21,7 @@ const CONFIG = Object.freeze({
         name: "Chidosky Electronics",
         email: "emmanuelokechukwu.c.2005@gmail.com",
         phone: "+234 702 543 4357",
-        address: "University of Nigeria, Nsukka, Enugu state.",
-        hours: "Mon - fri, 8:00am - 3:00pm"
+        address: "University of Nigeria, Nsukka, Enugu State, Nigeria",
+        hours: "Mon - fri, 10:00am - 3:00pm"
     }
 });

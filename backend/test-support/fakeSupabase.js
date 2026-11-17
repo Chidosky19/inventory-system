@@ -6,10 +6,11 @@ function createFakeSupabase(seed = {}) {
     const db = {
         products: seed.products || [],
         sales: seed.sales || [],
-        stock_history: seed.stock_history || []
+        stock_history: seed.stock_history || [],
+        contact_messages: seed.contact_messages || []
     };
     const users = seed.users || {};
-    const nextId = { products: 1000, sales: 1000, stock_history: 1000 };
+    const nextId = { products: 1000, sales: 1000, stock_history: 1000, contact_messages: 1000 };
 
     const fake = {
         db,
@@ -29,9 +30,18 @@ function createFakeSupabase(seed = {}) {
             this.sort = null;
             this.values = null;
             this.single = false;
+            this.limitCount = null;
+            this.wantCount = false;
+            this.headOnly = false;
         }
 
-        select(columns = "*") { this.columns = columns; return this; }
+        select(columns = "*", options = {}) {
+            this.columns = columns;
+            this.wantCount = Boolean(options && options.count);
+            this.headOnly = Boolean(options && options.head);
+            return this;
+        }
+        limit(count) { this.limitCount = count; return this; }
         insert(values) { this.op = "insert"; this.values = values; return this; }
         update(values) { this.op = "update"; this.values = values; return this; }
         delete() { this.op = "delete"; return this; }
@@ -99,7 +109,13 @@ function createFakeSupabase(seed = {}) {
                 result.sort((a, b) => (a[column] > b[column] ? 1 : -1) * (ascending ? 1 : -1));
             }
 
-            return { data: this.single ? (result[0] || null) : result, error: null };
+            const total = result.length;
+
+            if (this.limitCount !== null) result = result.slice(0, this.limitCount);
+
+            if (this.headOnly) return { data: null, error: null, count: this.wantCount ? total : null };
+
+            return { data: this.single ? (result[0] || null) : result, error: null, count: this.wantCount ? total : null };
         }
     }
 

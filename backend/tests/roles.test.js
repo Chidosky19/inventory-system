@@ -139,6 +139,44 @@ withApp("admin sales are labelled with the admin's name", async ({ call, fake })
     assert.equal(fake.db.sales.find(sale => sale.id === res.body.id).sold_by, "The Boss");
 });
 
+withApp("the latest-sale check returns the newest sale and a count, limited to what the caller may see", async ({ call }) => {
+    const admin = await call("/sales/latest");
+    assert.equal(admin.status, 200);
+    assert.equal(admin.body.totalSales, 2);
+    assert.equal(admin.body.latest.id, 2);                       // the newest sale overall
+
+    const bola = await call("/sales/latest", { token: "bola-token" });
+    assert.equal(bola.body.totalSales, 1);
+    assert.equal(bola.body.latest.id, 1);                        // an employee only sees their own
+
+    const ada = await call("/sales/latest", { token: "ada-token" });
+    assert.equal(ada.body.totalSales, 0);
+    assert.equal(ada.body.latest, null);                         // no sales yet
+});
+
+withApp("the alerts check reports the newest sale, unread messages and employees waiting for approval", async ({ call, fake }) => {
+    fake.db.contact_messages.push(
+        { id: 1, name: "A", email: "a@x.com", topic: "Support", message: "hi", is_read: false, created_at: "2026-11-03T10:00:00Z" },
+        { id: 2, name: "B", email: "b@x.com", topic: "Support", message: "hi", is_read: true, created_at: "2026-11-03T11:00:00Z" }
+    );
+    fake.authUsers.push({
+        id: "66666666-6666-4666-8666-666666666666", email: "new@shop.com",
+        app_metadata: { role: "employee" }, user_metadata: { name: "New Person", self_registered: true },
+        banned_until: "2999-01-01T00:00:00Z"
+    });
+
+    const res = await call("/dashboard/alerts");
+    assert.equal(res.status, 200);
+    assert.equal(res.body.totalSales, 2);
+    assert.equal(res.body.latestSale.id, 2);
+    assert.equal(res.body.unreadMessages, 1);        // the read one is not counted
+    assert.equal(res.body.pendingEmployees, 1);      // the locked-out "Gone" account was not a self sign-up
+});
+
+withApp("employees cannot use the alerts check", async ({ call }) => {
+    assert.equal((await call("/dashboard/alerts", { token: "ada-token" })).status, 403);
+});
+
 withApp("employees only see their own sales, admins see all", async ({ call }) => {
     await call("/sales", { method: "POST", body: { product_id: 1, quantity: 1 }, token: "ada-token" });
 

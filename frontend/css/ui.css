@@ -40,7 +40,7 @@
 
 .toast-stack {
     position: fixed;
-    top: 16px;
+    top: 84px;   /* just under the top bar, so the bell and buttons stay clickable */
     right: 16px;
     z-index: 3000;
     display: flex;
@@ -474,3 +474,21 @@ a.notif-chip:hover { border-color: var(--ui-primary); }
         max-width: none;
     }
 }
+
+
+.notif-foot { padding: 10px 14px; border-top: 1px solid var(--ui-border); }
+
+.notif-foot button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 0;
+    background: transparent;
+    color: var(--ui-primary);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.notif-foot button:hover { text-decoration: underline; }

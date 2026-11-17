@@ -85,6 +85,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     <button class="notif-mark" id="notifMark" type="button" hidden>Mark sales as seen</button>
                 </div>
                 <ul class="notif-list" id="notifList"></ul>
+                <div class="notif-foot" id="notifFoot" hidden>
+                    <button type="button" id="notifAllow"><i class="bi bi-bell"></i> Turn on desktop alerts</button>
+                </div>
             </div>`;
         topActions.prepend(wrap);
 
@@ -94,6 +97,34 @@ document.addEventListener("DOMContentLoaded", function () {
         const list = wrap.querySelector("#notifList");
         const markSeen = wrap.querySelector("#notifMark");
         const summary = document.getElementById("notifSummary");
+        const foot = wrap.querySelector("#notifFoot");
+        const allowAlerts = wrap.querySelector("#notifAllow");
+
+        // Desktop alerts: shown by the browser even when this tab is in the background
+        function updateAlertsButton() {
+            foot.hidden = !("Notification" in window) || Notification.permission !== "default";
+        }
+
+        allowAlerts.addEventListener("click", async () => {
+            try { await Notification.requestPermission(); } catch (error) { /* ignore */ }
+            updateAlertsButton();
+        });
+
+        updateAlertsButton();
+
+        /** Pop-up if the tab is open and in front, desktop notification if it is in the background. */
+        function notifyUser(text) {
+            if (!document.hidden) {
+                if (typeof Utils.toast === "function") Utils.toast(text, "info");
+                return;
+            }
+
+            if ("Notification" in window && Notification.permission === "granted") {
+                try {
+                    new Notification("Chidosky Electronics", { body: text, icon: "../favicon.svg" });
+                } catch (error) { /* some phones only allow this from a service worker */ }
+            }
+        }
 
         function readSeen() {
             try {
@@ -282,21 +313,22 @@ document.addEventListener("DOMContentLoaded", function () {
                 outOfStock: dashboard ? listOf(dashboard, "lowStockProducts").filter(product => product.quantity <= 0).length : 0
             };
 
-            // A short pop-up for anything that arrived since the last check (not on the very first one)
-            if (previous && !document.hidden && typeof Utils.toast === "function") {
+            // A notice for anything that arrived since the last check (not on the very first one)
+            if (previous) {
                 if (found.freshSales.length > previous.sales && found.freshSales.length) {
                     const latest = newest(found.freshSales, "created_at");
                     const product = (latest.products && latest.products.product_name) || "a product";
-                    Utils.toast(`New sale: ${product} · ${Utils.formatMoney(latest.total_price)}`, "info");
+                    const who = latest.sold_by ? ` by ${latest.sold_by}` : "";
+                    notifyUser(`New sale: ${product} · ${Utils.formatMoney(latest.total_price)}${who}`);
                 }
 
                 if (found.unread.length > previous.messages) {
                     const latest = newest(found.unread, "created_at");
-                    Utils.toast(`New message from ${latest.name || "a visitor"}`, "info");
+                    notifyUser(`New message from ${latest.name || "a visitor"}`);
                 }
 
                 if (found.pending.length > previous.pending) {
-                    Utils.toast("A new employee is waiting for approval.", "info");
+                    notifyUser("A new employee is waiting for approval.");
                 }
             }
 
@@ -337,8 +369,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
         window.refreshNotifications = check;
 
+        // Every 15 seconds ask the server one tiny question: the newest sale, how many messages are
+        // unread and how many employees are waiting. Only when the answer changes do we run the full
+        // check below, which also refreshes the low-stock numbers.
+        let lastAlertKey = null;
+
+        async function watchAlerts() {
+            try {
+                let key;
+
+                try {
+                    const alerts = await Api.getAlerts();
+                    key = `${alerts.latestSale ? alerts.latestSale.id : "none"}:${alerts.totalSales}|${alerts.unreadMessages}|${alerts.pendingEmployees}`;
+                } catch (error) {
+                    // An older backend without /dashboard/alerts: at least watch for new sales
+                    const result = await Api.getLatestSale();
+                    key = `${result.latest ? result.latest.id : "none"}:${result.totalSales}`;
+                }
+
+                const changed = lastAlertKey !== null && key !== lastAlertKey;
+
+                lastAlertKey = key;
+
+                if (changed) check();
+            } catch (error) { /* the full check below still runs every 2 minutes */ }
+        }
+
         check();
-        setInterval(() => { if (!document.hidden) check(); }, 120000);
-        document.addEventListener("visibilitychange", () => { if (!document.hidden) check(); });
+        watchAlerts();
+        setInterval(watchAlerts, 15000);
+        setInterval(check, 120000);   // a safety net, and it refreshes the stock numbers
+        document.addEventListener("visibilitychange", () => { if (!document.hidden) { check(); watchAlerts(); } });
     }
 });

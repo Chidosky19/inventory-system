@@ -40,6 +40,9 @@
         els.message.textContent = text;
         els.message.classList.toggle("is-success", type === "success");
         els.message.hidden = !text;
+
+        // A recorded sale also pops up in the corner, so it is impossible to miss
+        if (text && type === "success") Utils.toast(text, "success");
     }
 
     function greeting(name) {

@@ -146,3 +146,6 @@ module.exports = function employeesRouter(supabase) {
 
     return router;
 };
+
+/** Used by the dashboard's alerts check: is this account an employee still waiting for approval? */
+module.exports.isPendingEmployee = user => isEmployee(user) && toEmployee(user).pending;
