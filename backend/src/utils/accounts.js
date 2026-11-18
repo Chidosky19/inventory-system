@@ -54,4 +54,4 @@ function parseNewEmployee(body, { phoneRequired = false } = {}) {
     return { name, email, phone, password: validatePassword(input.password) };
 }
 
-module.exports = { DISABLED_FOR, validatePassword, parsePhone, parseNewEmployee };
+module.exports = { DISABLED_FOR, validatePassword, parseNewEmployee };

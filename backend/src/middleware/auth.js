@@ -73,4 +73,4 @@ function requireRole(...allowed) {
     };
 }
 
-module.exports = { ROLES, createRequireAuth, requireRole, resolveRole };
+module.exports = { ROLES, createRequireAuth, requireRole };

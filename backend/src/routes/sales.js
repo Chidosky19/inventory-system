@@ -88,7 +88,7 @@ module.exports = function salesRouter(supabase) {
 
             if (ownerError || !tagged || tagged.length === 0) {
                 console.error(
-                    "Sale recorded but could not save who made it (did you run sql/001_employee_support.sql?):",
+                    "Sale recorded but could not save who made it (did you run sql/setup.sql?):",
                     ownerError ? ownerError.message : "no row updated"
                 );
                 warning = "Sale recorded, but it could not be linked to your account.";
@@ -113,29 +113,6 @@ module.exports = function salesRouter(supabase) {
             message: "Sales retrieved successfully",
             totalSales: sales.length,
             sales
-        });
-    });
-
-    // LATEST SALE: a very small request that lets the notification bell spot a new sale
-    // without downloading every sale. Admins see the newest sale overall; employees their own.
-    // (This must stay above "/:id", otherwise "latest" would be read as a sale ID.)
-    router.get("/latest", async (req, res) => {
-        const query = supabase
-            .from("sales")
-            .select("id, created_at, quantity, total_price, sold_by, products (product_name)", { count: "exact" });
-
-        const { data, error, count } = await limitToOwnSales(query, req)
-            .order("created_at", { ascending: false })
-            .limit(1);
-
-        if (error) {
-            console.error("Failed to read the latest sale:", error.message);
-            throw new HttpError(500, "Failed to retrieve the latest sale");
-        }
-
-        res.status(200).json({
-            totalSales: count ?? (data ? data.length : 0),
-            latest: data && data.length > 0 ? data[0] : null
         });
     });
 

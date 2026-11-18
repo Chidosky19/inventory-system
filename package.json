@@ -6,8 +6,7 @@
   "scripts": {
     "setup": "npm --prefix backend install",
     "start": "npm --prefix backend start",
-    "dev": "npm --prefix backend run dev",
-    "test": "npm --prefix backend test"
+    "dev": "npm --prefix backend run dev"
   },
   "engines": {
     "node": ">=18"

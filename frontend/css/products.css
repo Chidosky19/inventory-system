@@ -1,10 +1,8 @@
 /* Products page: cards, list view, filters */
 
 :root {
-    --pc-ok: #15803d;
     --pc-low: #b45309;
     --pc-out: #dc2626;
-    --pc-ok-bg: rgba(22, 163, 74, 0.14);
     --pc-low-bg: rgba(217, 119, 6, 0.16);
     --pc-out-bg: rgba(220, 38, 38, 0.12);
     --pc-gauge-ok: #22a35a;
@@ -14,10 +12,8 @@
 }
 
 :root[data-theme="dark"] {
-    --pc-ok: #6ee7b7;
     --pc-low: #fcd34d;
     --pc-out: #fca5a5;
-    --pc-ok-bg: rgba(52, 211, 153, 0.16);
     --pc-low-bg: rgba(251, 191, 36, 0.16);
     --pc-out-bg: rgba(248, 113, 113, 0.16);
     --pc-gauge-ok: #34d399;

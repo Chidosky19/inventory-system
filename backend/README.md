@@ -91,12 +91,14 @@ Every route except `/`, `/health`, `/auth/register` and `/contact` needs the hea
 | PATCH / DELETE | `/messages/:id` | admin | Mark read / unread `{ is_read }`, delete |
 | GET | `/me` | both | Current user: id, email, name, role |
 | GET | `/dashboard` | admin | Statistics and low-stock products (with names) |
+| GET | `/dashboard/alerts` | admin | Tiny check for the notification bell: newest sale, unread messages, employees waiting |
 | GET | `/products`, `/products/:id` | both | View products |
 | POST / PUT / DELETE | `/products`, `/products/:id` | admin | Add, edit, delete products |
 | POST | `/stock/in/:productId`, `/stock/out/:productId` | admin | Add / remove stock `{ quantity, note? }` |
 | GET | `/stock/history` | admin | Stock movements |
 | POST | `/sales` | both | Record a sale `{ product_id, quantity }` |
 | GET | `/sales`, `/sales/:id` | both | Sales (employees: only their own) |
+| GET | `/sales/latest` | both | The newest sale and a total (employees: only their own) |
 | GET / POST | `/employees` | admin | List / add employees `{ name, email, password }` |
 | PATCH | `/employees/:id` | admin | Disable / enable `{ disabled: true \| false }` |
 | PATCH | `/employees/:id/password` | admin | Reset an employee's password `{ password }` |

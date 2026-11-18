@@ -79,7 +79,7 @@ module.exports = function productsRouter(supabase) {
                 throw new HttpError(
                     409,
                     "This product can't be deleted because it already has sales or stock records. " +
-                    "Set its quantity to 0 instead, or see sql/003_allow_product_delete.sql."
+                    "Set its quantity to 0 instead, or see sql/optional-allow-product-delete.sql."
                 );
             }
 
