@@ -1,10 +1,10 @@
 /**
- * Notification bell for the admin pages: new sales, unread messages, employees waiting for approval
+ * Notification bell for the admin pages: new sales, employees waiting for approval
  * and low stock. Also fills the menu badges, the browser tab title and the dashboard summary chips.
  * Needs: api.js, utils.js.
  */
 document.addEventListener("DOMContentLoaded", function () {
-    /* ---- Notifications: new sales, unread messages, employees waiting, low stock ---- */
+    /* ---- Notifications: new sales, employees waiting, low stock ---- */
     const topActions = document.querySelector(".top-actions");
 
     if (topActions && typeof Api !== "undefined") {
@@ -134,16 +134,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
             }
 
-            if (found.unread.length) {
-                const latest = newest(found.unread, "created_at");
-
-                items.push({
-                    icon: "bi-envelope", tone: "info", href: "messages.html",
-                    title: `${plural(found.unread.length, "unread message")}`,
-                    detail: `Latest from ${latest.name || "a visitor"}${latest.topic ? " · " + latest.topic : ""} · ${timeAgo(new Date(latest.created_at))}`
-                });
-            }
-
             if (found.pending.length) {
                 items.push({
                     icon: "bi-person-check", tone: "info", href: "employees.html",
@@ -160,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
             }
 
-            const total = found.freshSales.length + found.unread.length + found.pending.length + found.lowStock;
+            const total = found.freshSales.length + found.pending.length + found.lowStock;
 
             // Bell badge and browser tab title
             count.hidden = total === 0;
@@ -169,7 +159,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // Menu badges
             setNavBadge("sales.html", found.freshSales.length);
-            setNavBadge("messages.html", found.unread.length);
             setNavBadge("employees.html", found.pending.length);
             setNavBadge("stock.html", found.lowStock);
 
@@ -229,8 +218,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const listOf = (result, key) => (result && Array.isArray(result[key])) ? result[key] : [];
 
         async function check() {
-            const [dashboard, sales, messages, employees] = (await Promise.allSettled([
-                Api.getDashboard(), Api.getSales(), Api.getMessages(), Api.getEmployees()
+            const [dashboard, sales, employees] = (await Promise.allSettled([
+                Api.getDashboard(), Api.getSales(), Api.getEmployees()
             ])).map(outcome => outcome.status === "fulfilled" ? outcome.value : null);
 
             const allSales = listOf(sales, "sales");
@@ -248,7 +237,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const found = {
                 freshSales: sales ? allSales.filter(sale => new Date(sale.created_at) > seen) : [],
-                unread: listOf(messages, "messages").filter(message => !message.is_read),
                 pending: listOf(employees, "employees").filter(employee => employee.pending),
                 lowStock: dashboard && dashboard.statistics ? Number(dashboard.statistics.lowStockCount) || 0 : 0,
                 outOfStock: dashboard ? listOf(dashboard, "lowStockProducts").filter(product => product.quantity <= 0).length : 0
@@ -263,17 +251,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     notifyUser(`New sale: ${product} · ${Utils.formatMoney(latest.total_price)}${who}`);
                 }
 
-                if (found.unread.length > previous.messages) {
-                    const latest = newest(found.unread, "created_at");
-                    notifyUser(`New message from ${latest.name || "a visitor"}`);
-                }
-
                 if (found.pending.length > previous.pending) {
                     notifyUser("A new employee is waiting for approval.");
                 }
             }
 
-            previous = { sales: found.freshSales.length, messages: found.unread.length, pending: found.pending.length };
+            previous = { sales: found.freshSales.length, pending: found.pending.length };
             render(found);
         }
 
@@ -310,15 +293,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
         window.refreshNotifications = check;
 
-        // Every 15 seconds ask the server one tiny question: the newest sale, how many messages are
-        // unread and how many employees are waiting. Only when the answer changes do we run the full
+        // Every 15 seconds ask the server one tiny question: the newest sale and how many
+        // employees are waiting. Only when the answer changes do we run the full
         // check below, which also refreshes the low-stock numbers.
         let lastAlertKey = null;
 
         async function watchAlerts() {
             try {
                 const alerts = await Api.getAlerts();
-                const key = `${alerts.latestSale ? alerts.latestSale.id : "none"}:${alerts.totalSales}|${alerts.unreadMessages}|${alerts.pendingEmployees}`;
+                const key = `${alerts.latestSale ? alerts.latestSale.id : "none"}:${alerts.totalSales}|${alerts.pendingEmployees}`;
                 const changed = lastAlertKey !== null && key !== lastAlertKey;
 
                 lastAlertKey = key;

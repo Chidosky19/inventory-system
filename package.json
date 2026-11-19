@@ -5,8 +5,7 @@
   "private": true,
   "scripts": {
     "setup": "npm --prefix backend install",
-    "start": "npm --prefix backend start",
-    "dev": "npm --prefix backend run dev"
+    "start": "npm --prefix backend start"
   },
   "engines": {
     "node": ">=18"
