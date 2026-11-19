@@ -16,12 +16,8 @@ const CONFIG = Object.freeze({
     LOCALE: "en-NG",
     CURRENCY: "₦",
 
-    // Shown on the About, Contact and Support pages. Replace with your real details.
+    // Shown in the footer of the Support page
     SITE: {
-        name: "Chidosky Electronics",
-        email: "support@example.com",
-        phone: "+234 800 000 0000",
-        address: "Your shop address, City, Nigeria",
-        hours: "Mon - Sat, 8:00am - 6:00pm"
+        name: "Chidosky Electronics"
     }
 });

@@ -19,13 +19,13 @@ inventory-system/
 │       ├── config.js         reads .env
 │       ├── supabase.js       the database connection
 │       ├── middleware/       auth.js (who is logged in, which role), errorHandler.js
-│       ├── routes/           products, stock, sales, dashboard, employees, auth, contact, me
+│       ├── routes/           products, stock, sales, dashboard, employees, auth, me
 │       └── utils/            validation, database helper, error type, rate limit, account checks
 └── frontend/                 what people see in the browser
     ├── favicon.svg           browser-tab icon
     ├── pages/                every HTML page
     ├── css/                  admin.css (admin pages + products), admin-login.css,
-    │                         employee.css, site.css (About/Contact/Support/My account),
+    │                         employee.css, site.css (Support and My account),
     │                         ui.css (pop-ups, confirm box, loading, notification bell)
     └── js/
         ├── core/             config.js (your settings), theme.js, auth-utils.js, auth-guard.js,
@@ -38,8 +38,8 @@ inventory-system/
 
 - **Admin:** dashboard (income, sales trend, top sellers, low stock), products, stock in/out,
   sales, reports (income per day, date range, CSV export), employees (approve, disable, reset
-  passwords, see each person's sales), messages from the Contact page, and a notification bell
-  for new sales, messages and staff sign-ups.
+  passwords, see each person's sales), and a notification bell for new sales, staff sign-ups
+  and low stock.
 - **Employees:** sign up, confirm their email, sign in, record sales, see their own sales,
   print a receipt, change their name and password.
 - **Everyone:** forgot password by email, light and dark mode, phone-friendly pages.
@@ -73,12 +73,12 @@ Then:
 npm start
 ```
 
-and open <http://localhost:3000>. Use `npm run dev` while editing code (it restarts for you).
+and open <http://localhost:3000>. After changing backend code, stop the server (Ctrl + C) and run `npm start` again.
 
 > If npm says it "could not read package.json", you are in the wrong folder. Run `dir` and
 > make sure you can see `package.json`, `backend` and `frontend`.
 
-Frontend settings (shop name, phone, address, currency, Supabase publishable key) are in
+Frontend settings (shop name, currency, Supabase publishable key) are in
 `frontend/js/core/config.js`.
 
 ## 2. Supabase: run the scripts once
@@ -87,7 +87,7 @@ In Supabase open **SQL Editor -> New query**, paste a script from `backend/sql/`
 
 | Script | What for |
 |---|---|
-| `setup.sql` | Needed. Records who made each sale, and creates the table for Contact page messages. Safe to run again |
+| `setup.sql` | Needed. Lets the app record which employee made each sale. Safe to run again |
 | `optional-allow-product-delete.sql` | Optional. Lets you delete products that already have sales (their history then shows "Unknown product") |
 
 The `record_sale` database function in Supabase is also required by the sales feature.
@@ -135,8 +135,8 @@ the admin also clicks **Approve** on the Employees page; then they sign in at
 
 ## Notifications
 
-On the admin pages a bell shows new sales, unread messages, employees waiting for approval and
-products that need restocking, with badges in the menu. Every 15 seconds the page asks the
+On the admin pages a bell shows new sales, employees waiting for approval and products that
+need restocking, with badges in the menu. Every 15 seconds the page asks the
 server one tiny question (`GET /dashboard/alerts`); when something changed it shows a pop-up.
 "New sales" are counted since you last opened the Sales page or pressed "Mark sales as seen"
 (remembered per browser). Employees get a pop-up whenever they record a sale.
@@ -153,18 +153,15 @@ server one tiny question (`GET /dashboard/alerts`); when something changed it sh
 
 ## API
 
-Every route except `/`, `/health`, `/auth/register` and `/contact` needs the header
+Every route except `/`, `/health` and `/auth/register` needs the header
 `Authorization: Bearer <Supabase access token>`.
 
 | Method | Path | Who | Description |
 |---|---|---|---|
 | POST | `/auth/register` | public | Employee sign-up `{ name, email, phone, password }` |
-| POST | `/contact` | public | Contact form message `{ name, email, topic?, message }` |
-| GET | `/messages` | admin | Messages from the Contact page |
-| PATCH / DELETE | `/messages/:id` | admin | Mark read / unread `{ is_read }`, delete |
 | GET | `/me` | both | Current user: id, email, name, role |
 | GET | `/dashboard` | admin | Statistics and low-stock products |
-| GET | `/dashboard/alerts` | admin | Newest sale, unread messages, employees waiting (for the bell) |
+| GET | `/dashboard/alerts` | admin | Newest sale and employees waiting (for the bell) |
 | GET | `/products`, `/products/:id` | both | View products |
 | POST / PUT / DELETE | `/products`, `/products/:id` | admin | Add, edit, delete products |
 | POST | `/stock/in/:productId`, `/stock/out/:productId` | admin | Add / remove stock `{ quantity, note? }` |
