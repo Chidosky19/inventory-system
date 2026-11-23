@@ -30,6 +30,7 @@
             );
 
             option.dataset.price = product.price;
+            option.dataset.stock = product.quantity;
             return option;
         });
 
@@ -47,9 +48,14 @@
         }
     }
 
+    const stockHint = document.getElementById("stockHint");
+
     function clearTotals() {
         unitPrice.value = "";
         totalAmount.value = "";
+        stockHint.textContent = "";
+        stockHint.className = "stock-hint";
+        saleQuantity.removeAttribute("max");
     }
 
     function calculateTotal() {
@@ -65,6 +71,13 @@
 
         unitPrice.value = Utils.formatMoney(price);
         totalAmount.value = Utils.formatMoney(price * quantity);
+
+        // Tell the seller how many are left, and stop them choosing more than that
+        const stock = Number(selected.dataset.stock);
+
+        saleQuantity.max = stock;
+        stockHint.textContent = quantity > stock ? `Only ${stock} in stock. Lower the quantity.` : `${stock} in stock`;
+        stockHint.className = `stock-hint${quantity > stock || stock <= 3 ? " is-low" : ""}`;
     }
 
 
@@ -93,6 +106,7 @@
             Utils.setMessage(saleMessage, "Sale recorded successfully!", "success");
             saleForm.reset();
             clearTotals();
+            productSelect.focus();   // ready for the next sale
 
             await Promise.all([loadProducts(), loadSales()]);
         } catch (error) {

@@ -12,6 +12,7 @@ const dashboardRouter = require("./routes/dashboard");
 const employeesRouter = require("./routes/employees");
 const meRouter = require("./routes/me");
 const authRouter = require("./routes/auth");
+const { contactRouter, messagesRouter } = require("./routes/contact");
 
 const LOCAL_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 
@@ -56,7 +57,8 @@ function createApp({ supabase, publicSupabase = null, config }) {
         app.get("/", (req, res) => res.send("Electronics Inventory API is running"));
     }
 
-    // Public API route: employee sign-up
+    // Public API routes: employee sign-up and the Contact page form
+    app.use("/contact", contactRouter(supabase));
     app.use("/auth", authRouter(supabase, {
         requireApproval: config.requireApproval !== false,
         publicSupabase,
@@ -73,6 +75,7 @@ function createApp({ supabase, publicSupabase = null, config }) {
     app.use("/me", meRouter());
     app.use("/dashboard", adminOnly, dashboardRouter(supabase));
     app.use("/employees", adminOnly, employeesRouter(supabase));
+    app.use("/messages", adminOnly, messagesRouter(supabase));
     app.use("/stock", adminOnly, stockRouter(supabase));
     app.use("/products", productsRouter(supabase));
     app.use("/sales", salesRouter(supabase));
