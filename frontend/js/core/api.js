@@ -68,6 +68,11 @@ const Api = (() => {
         stockIn: (productId, data) => request(`/stock/in/${productId}`, { method: "POST", body: data, fallback: "Unable to add stock" }),
         stockOut: (productId, data) => request(`/stock/out/${productId}`, { method: "POST", body: data, fallback: "Unable to remove stock" }),
 
+        // Contact page messages (admin only)
+        getMessages: () => request("/messages", { fallback: "Unable to load messages" }),
+        setMessageRead: (id, isRead) => request(`/messages/${id}`, { method: "PATCH", body: { is_read: isRead }, fallback: "Could not update the message" }),
+        deleteMessage: id => request(`/messages/${id}`, { method: "DELETE", fallback: "Could not delete the message" }),
+
         // Employees (admin only)
         getEmployees: () => request("/employees", { fallback: "Unable to load employees" }),
         createEmployee: employee => request("/employees", { method: "POST", body: employee, fallback: "Could not add employee" }),

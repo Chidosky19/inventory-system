@@ -41,7 +41,7 @@ function contactRouter(supabase) {
 
         const entry = parseMessage(req.body);
 
-        unwrap(await supabase.from("contact_messages").insert([entry]), "Could not send your message");
+        unwrap(await supabase.from("contact_messages").insert([{ ...entry, is_read: false }]), "Could not send your message");
 
         res.status(201).json({ message: "Thanks, your message has been sent." });
     });

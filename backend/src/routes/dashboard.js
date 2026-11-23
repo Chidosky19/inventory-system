@@ -27,12 +27,16 @@ module.exports = function dashboardRouter(supabase) {
     // ALERTS: a few small numbers the notification bell checks every few seconds.
     // When any of them changes, the page loads the full details.
     router.get("/alerts", async (req, res) => {
-        const [salesResult, pendingEmployees] = await Promise.all([
+        const [salesResult, unreadResult, pendingEmployees] = await Promise.all([
             supabase
                 .from("sales")
                 .select("id, created_at, quantity, total_price, sold_by, products (product_name)", { count: "exact" })
                 .order("created_at", { ascending: false })
                 .limit(1),
+            supabase
+                .from("contact_messages")
+                .select("id", { count: "exact", head: true })
+                .eq("is_read", false),
             countPendingEmployees()
         ]);
 
@@ -41,11 +45,16 @@ module.exports = function dashboardRouter(supabase) {
             throw new HttpError(500, "Failed to retrieve alerts");
         }
 
+        if (unreadResult.error) {
+            console.error("Alerts: could not count unread messages:", unreadResult.error.message);
+        }
+
         const latest = salesResult.data && salesResult.data.length > 0 ? salesResult.data[0] : null;
 
         res.status(200).json({
             totalSales: salesResult.count ?? (salesResult.data ? salesResult.data.length : 0),
             latestSale: latest,
+            unreadMessages: unreadResult.count || 0,
             pendingEmployees
         });
     });
